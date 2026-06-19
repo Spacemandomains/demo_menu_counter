@@ -60,38 +60,47 @@
   function buildConsole() {
     if (document.getElementById("agent-console")) return;
 
-    // Collapsed by default to a small launcher pill so it never blocks the menu.
-    const panel = document.createElement("aside");
-    panel.id = "agent-console";
-    panel.className = "agent-console is-collapsed";
-    panel.setAttribute("data-testid", "agent-console");
-    panel.innerHTML =
-      '<button type="button" class="agent-launcher" id="agent-launcher" data-testid="agent-launcher" ' +
-      'aria-label="Open agent demo">' +
-      '<span class="agent-bot" aria-hidden="true">🤖</span>' +
-      '<span class="agent-launcher-label">Agent demo</span>' +
+    // Lives as a hamburger menu in the header (next to the cart), closed by
+    // default, so it never blocks the menu. Clicking the hamburger opens a
+    // dropdown with the Run/Stop control and the narrated activity log.
+    const wrap = document.createElement("div");
+    wrap.id = "agent-console";
+    wrap.className = "agent-console is-closed";
+    wrap.setAttribute("data-testid", "agent-console");
+    wrap.innerHTML =
+      '<button type="button" class="agent-hamburger" id="agent-hamburger" data-testid="agent-hamburger" ' +
+      'aria-label="Agent demo menu" aria-haspopup="true" aria-expanded="false">' +
+      "☰<span class=\"agent-run-dot\" aria-hidden=\"true\"></span>" +
       "</button>" +
-      '<div class="agent-panel">' +
+      '<div class="agent-panel" role="menu">' +
       '<div class="agent-console-head">' +
-      '<span class="agent-console-title"><span class="agent-bot" aria-hidden="true">🤖</span> Agent activity</span>' +
-      '<div class="agent-head-controls">' +
+      '<span class="agent-console-title"><span class="agent-bot" aria-hidden="true">🤖</span> Agent demo</span>' +
       '<button type="button" class="agent-toggle" id="agent-toggle" data-testid="agent-toggle">Run</button>' +
-      '<button type="button" class="agent-min" id="agent-min" data-testid="agent-min" aria-label="Minimize">–</button>' +
-      "</div>" +
       "</div>" +
       '<ul class="agent-log" id="agent-log" data-testid="agent-log"></ul>' +
       '<p class="agent-hint">A simulated AI agent ordering against this live cart.</p>' +
       "</div>";
-    document.body.appendChild(panel);
 
+    const host = document.querySelector(".header-inner") || document.body;
+    host.appendChild(wrap);
+
+    document.getElementById("agent-hamburger").addEventListener("click", (e) => {
+      e.stopPropagation();
+      setOpen(wrap.classList.contains("is-closed"));
+    });
     document.getElementById("agent-toggle").addEventListener("click", toggle);
-    document.getElementById("agent-launcher").addEventListener("click", () => setCollapsed(false));
-    document.getElementById("agent-min").addEventListener("click", () => setCollapsed(true));
+    // Close the dropdown when clicking anywhere outside it.
+    document.addEventListener("click", (e) => {
+      if (!wrap.contains(e.target)) setOpen(false);
+    });
   }
 
-  function setCollapsed(collapsed) {
-    const panel = document.getElementById("agent-console");
-    if (panel) panel.classList.toggle("is-collapsed", collapsed);
+  function setOpen(open) {
+    const wrap = document.getElementById("agent-console");
+    if (!wrap) return;
+    wrap.classList.toggle("is-closed", !open);
+    const ham = document.getElementById("agent-hamburger");
+    if (ham) ham.setAttribute("aria-expanded", open ? "true" : "false");
   }
 
   function log(message, kind) {
@@ -114,8 +123,6 @@
       btn.textContent = on ? "Stop" : "Run";
       btn.classList.toggle("is-running", on);
     }
-    const label = document.querySelector(".agent-launcher-label");
-    if (label) label.textContent = on ? "Agent running" : "Agent demo";
     const panel = document.getElementById("agent-console");
     if (panel) panel.classList.toggle("is-running", on);
   }
@@ -252,7 +259,7 @@
       menuItems = flatItems();
       const params = new URLSearchParams(location.search);
       if (params.has("demo") || params.has("auto")) {
-        setCollapsed(false); // expand so the narrated activity is visible
+        setOpen(true); // open the dropdown so the narrated activity is visible
         start();
       }
     });
