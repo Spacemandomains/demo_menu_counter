@@ -81,8 +81,11 @@
       '<p class="agent-hint">A simulated AI agent ordering against this live cart.</p>' +
       "</div>";
 
+    // Place it just to the right of the "🍴 Agent Menu" brand (left side).
     const host = document.querySelector(".header-inner") || document.body;
-    host.appendChild(wrap);
+    const brand = host.querySelector(".brand");
+    if (brand) host.insertBefore(wrap, brand.nextSibling);
+    else host.appendChild(wrap);
 
     document.getElementById("agent-hamburger").addEventListener("click", (e) => {
       e.stopPropagation();
