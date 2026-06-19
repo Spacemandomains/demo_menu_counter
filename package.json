@@ -1,0 +1,9 @@
+{
+  "name": "agent-menu-dummy-menu",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dummy storefront for the Agent Menu demo: static UI plus a Neon-backed cart API so any AI agent can transact over HTTP.",
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4"
+  }
+}

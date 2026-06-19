@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Menu — Demo</title>
+  <meta name="description" content="A dummy ordering prototype for AI agents: browse menus, add items to a cart, and complete a simulated checkout." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-app="agent-menu">
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="#" data-testid="brand">🍴 Agent Menu</a>
+      <button
+        type="button"
+        class="cart-button"
+        id="open-cart"
+        data-testid="open-cart"
+        aria-label="Open cart"
+      >
+        Cart <span class="cart-count" id="cart-count" data-testid="cart-count">0</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="wrap" id="app">
+    <!-- ============ STEP 1: BROWSE MENUS ============ -->
+    <section id="view-menus" class="view" data-view="menus" aria-label="Menus">
+      <h1 class="page-title">Order from a menu</h1>
+      <p class="page-subtitle">
+        Pick items from any menu below, then open your cart to check out.
+        This is a prototype with a simulated checkout — no real payment is taken.
+      </p>
+
+      <div id="menus" class="menus" data-testid="menus">
+        <!-- Menus are rendered here by app.js -->
+      </div>
+    </section>
+
+    <!-- ============ STEP 2: CART / CHECKOUT ============ -->
+    <section id="view-checkout" class="view" data-view="checkout" hidden aria-label="Checkout">
+      <button type="button" class="link-back" id="back-to-menus" data-testid="back-to-menus">
+        ← Back to menus
+      </button>
+      <h1 class="page-title">Checkout</h1>
+
+      <div class="checkout-grid">
+        <div class="checkout-main">
+          <h2 class="section-title">Your order</h2>
+          <ul id="cart-items" class="cart-items" data-testid="cart-items">
+            <!-- Cart line items rendered here -->
+          </ul>
+          <p id="cart-empty" class="cart-empty" data-testid="cart-empty" hidden>
+            Your cart is empty. Go back and add some items.
+          </p>
+
+          <button type="button" class="link-clear" id="clear-cart" data-testid="clear-cart">
+            Clear cart
+          </button>
+
+          <h2 class="section-title">Delivery details</h2>
+          <form id="checkout-form" class="checkout-form" novalidate>
+            <label class="field">
+              <span>Name</span>
+              <input type="text" name="name" id="field-name" data-testid="field-name"
+                     autocomplete="name" placeholder="Ada Lovelace" required />
+            </label>
+            <label class="field">
+              <span>Delivery address</span>
+              <input type="text" name="address" id="field-address" data-testid="field-address"
+                     autocomplete="street-address" placeholder="123 Main St, Apt 4" required />
+            </label>
+            <label class="field">
+              <span>Card number</span>
+              <input type="text" name="card" id="field-card" data-testid="field-card"
+                     inputmode="numeric" autocomplete="cc-number"
+                     placeholder="4242 4242 4242 4242" required />
+            </label>
+          </form>
+        </div>
+
+        <aside class="checkout-summary" aria-label="Order summary">
+          <h2 class="section-title">Summary</h2>
+          <dl class="summary-lines">
+            <div class="summary-row">
+              <dt>Subtotal</dt>
+              <dd id="summary-subtotal" data-testid="summary-subtotal">$0.00</dd>
+            </div>
+            <div class="summary-row">
+              <dt>Delivery fee</dt>
+              <dd id="summary-fee" data-testid="summary-fee">$0.00</dd>
+            </div>
+            <div class="summary-row total">
+              <dt>Total</dt>
+              <dd id="summary-total" data-testid="summary-total">$0.00</dd>
+            </div>
+          </dl>
+          <button
+            type="submit"
+            form="checkout-form"
+            class="pay-button"
+            id="place-order"
+            data-testid="place-order"
+          >
+            Pay &amp; place order
+          </button>
+          <p class="disclaimer">Simulated payment — no card is charged.</p>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ============ STEP 3: CONFIRMATION ============ -->
+    <section id="view-confirmation" class="view" data-view="confirmation" hidden aria-label="Order confirmation">
+      <div class="confirmation-card" data-testid="order-confirmation">
+        <div class="confirmation-check" aria-hidden="true">✓</div>
+        <h1 class="page-title">Order confirmed</h1>
+        <p class="page-subtitle">Thanks! Your simulated order is on its way.</p>
+
+        <dl class="receipt">
+          <div class="summary-row">
+            <dt>Order number</dt>
+            <dd id="receipt-order-id" data-testid="receipt-order-id">—</dd>
+          </div>
+          <div class="summary-row">
+            <dt>Name</dt>
+            <dd id="receipt-name" data-testid="receipt-name">—</dd>
+          </div>
+          <div class="summary-row">
+            <dt>Items</dt>
+            <dd id="receipt-items" data-testid="receipt-items">—</dd>
+          </div>
+          <div class="summary-row total">
+            <dt>Total paid</dt>
+            <dd id="receipt-total" data-testid="receipt-total">—</dd>
+          </div>
+        </dl>
+
+        <button type="button" class="pay-button" id="new-order" data-testid="new-order">
+          Start a new order
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Lightweight status region so agents can read app state programmatically -->
+  <div id="app-status" data-testid="app-status" role="status" aria-live="polite" class="visually-hidden">
+    Viewing menus
+  </div>
+
+  <script src="menu-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
