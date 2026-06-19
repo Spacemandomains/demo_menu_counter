@@ -45,8 +45,8 @@ baseUrl = baseUrl.replace(/\/+$/, "");
 const CART_ID = flags.cart || "demo";
 const ROUNDS = flags.once ? 1 : flags.rounds ? parseInt(flags.rounds, 10) : Infinity;
 const FAST = !!flags.fast;
-const DELAY = FAST ? [400, 1100] : [1400, 3200];
-const PAY_PAUSE = FAST ? 500 : 1100;
+const DELAY = FAST ? [400, 1100] : [1050, 2400];
+const PAY_PAUSE = FAST ? 500 : 825;
 const MAX_CART_LINES = 4;
 
 const PERSONAS = [

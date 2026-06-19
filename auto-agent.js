@@ -22,9 +22,9 @@
   // ---- Tunables ------------------------------------------------------------
 
   const CFG = {
-    minDelayMs: 1400, // pause between actions (randomized up to maxDelayMs)
-    maxDelayMs: 3200,
-    payPauseMs: 1100, // extra "thinking" beat before paying / after confirming
+    minDelayMs: 1050, // pause between actions (randomized up to maxDelayMs)
+    maxDelayMs: 2400,
+    payPauseMs: 825, // extra "thinking" beat before paying / after confirming
     maxCartLines: 4, // soft cap on distinct items before the agent leans to checkout
     logLimit: 7, // how many recent lines to keep in the on-screen console
   };
@@ -138,6 +138,12 @@
       return;
     }
 
+    // While browsing the menu, sometimes just scroll around like a human
+    // skimming the options before acting.
+    if (state.view === "menus" && Math.random() < 0.3) {
+      return scrollRandom();
+    }
+
     const lines = state.cart || [];
     const distinct = lines.length;
 
@@ -168,6 +174,17 @@
     const qty = Math.random() < 0.25 ? 2 : 1;
     log("Adding <strong>" + (qty > 1 ? qty + "× " : "") + escape(item.name) + "</strong> to cart", "add");
     await window.AgentMenu.addItem(item.id, qty);
+  }
+
+  async function scrollRandom() {
+    const doc = document.documentElement;
+    const max = Math.max(0, doc.scrollHeight - window.innerHeight);
+    if (max < 40) return; // nothing meaningful to scroll
+    const target = rand(0, max);
+    const dir = target >= (window.scrollY || 0) ? "down" : "up";
+    log("Scrolling " + dir + " the menu…");
+    window.scrollTo({ top: target, behavior: "smooth" });
+    await wait(550); // let the smooth scroll settle before the next action
   }
 
   async function removeRandom(lines) {
