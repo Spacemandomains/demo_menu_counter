@@ -268,37 +268,56 @@ main { padding: 32px 0 64px; }
   100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
 }
 
-/* ============ Auto-agent demo console ============ */
+/* ============ Auto-agent demo console (header hamburger) ============ */
+/* Keep the brand on the left and group the cart + hamburger on the right. */
+.header-inner .brand { margin-right: auto; }
+
 .agent-console {
-  position: fixed;
-  right: 16px;
-  bottom: 16px;
-  z-index: 50;
+  position: relative;
   font-size: 0.85rem;
 }
 
-/* Collapsed: just a small launcher pill that never blocks the menu. */
-.agent-launcher {
+/* Hamburger trigger, sitting next to the cart button in the header. */
+.agent-hamburger {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 8px 14px;
+  justify-content: center;
+  width: 42px;
+  height: 40px;
+  margin-left: 10px;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 10px;
   background: var(--card);
   color: var(--ink);
-  font: inherit;
-  font-weight: 600;
+  font-size: 1.15rem;
+  line-height: 1;
   cursor: pointer;
-  box-shadow: var(--shadow);
 }
-.agent-launcher:hover { border-color: #c8d6ff; }
-.agent-console.is-running .agent-launcher { border-color: #c8d6ff; box-shadow: 0 0 0 3px rgba(99, 132, 255, 0.14), var(--shadow); }
-.agent-console.is-collapsed .agent-panel { display: none; }
-.agent-console:not(.is-collapsed) .agent-launcher { display: none; }
+.agent-hamburger:hover { border-color: #c8d6ff; }
+.agent-console.is-running .agent-hamburger { border-color: #c8d6ff; }
+.agent-run-dot {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 2px solid var(--card);
+  display: none;
+}
+.agent-console.is-running .agent-run-dot {
+  display: block;
+  box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6);
+  animation: live-pulse 1.6s infinite;
+}
 
-/* Expanded panel. */
+/* Dropdown panel anchored under the hamburger. */
 .agent-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
   width: 300px;
   max-width: calc(100vw - 32px);
   background: var(--card);
@@ -306,21 +325,9 @@ main { padding: 32px 0 64px; }
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   overflow: hidden;
+  z-index: 60;
 }
-.agent-console.is-running .agent-panel { border-color: #c8d6ff; box-shadow: 0 0 0 3px rgba(99, 132, 255, 0.12), var(--shadow); }
-.agent-head-controls { display: inline-flex; align-items: center; gap: 6px; }
-.agent-min {
-  border: 0;
-  background: rgba(255, 255, 255, 0.16);
-  color: #fff;
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-  font-size: 1rem;
-  line-height: 1;
-  cursor: pointer;
-}
-.agent-min:hover { background: rgba(255, 255, 255, 0.28); }
+.agent-console.is-closed .agent-panel { display: none; }
 .agent-console-head {
   display: flex;
   align-items: center;
@@ -380,7 +387,6 @@ main { padding: 32px 0 64px; }
   font-size: 0.76rem;
   border-top: 1px solid var(--line);
 }
-@media (max-width: 520px) {
-  .agent-console:not(.is-collapsed) { left: 16px; right: 16px; }
-  .agent-console:not(.is-collapsed) .agent-panel { width: auto; }
+@media (max-width: 360px) {
+  .agent-panel { width: calc(100vw - 32px); }
 }
