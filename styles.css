@@ -267,3 +267,82 @@ main { padding: 32px 0 64px; }
   70%  { box-shadow: 0 0 0 7px rgba(34, 197, 94, 0); }
   100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
 }
+
+/* ============ Auto-agent demo console ============ */
+.agent-console {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  z-index: 50;
+  overflow: hidden;
+  font-size: 0.85rem;
+}
+.agent-console.is-running { border-color: #c8d6ff; box-shadow: 0 0 0 3px rgba(99, 132, 255, 0.12), var(--shadow); }
+.agent-console-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #0f1729;
+  color: #fff;
+}
+.agent-console-title { display: inline-flex; align-items: center; gap: 7px; font-weight: 600; }
+.agent-bot {
+  display: inline-block;
+  animation: agent-bob 2.4s ease-in-out infinite;
+}
+.agent-console.is-running .agent-bot { animation-duration: 1s; }
+@keyframes agent-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+.agent-toggle {
+  border: 0;
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--brand);
+  color: #fff;
+}
+.agent-toggle:hover { background: var(--brand-dark); }
+.agent-toggle.is-running { background: #344056; }
+.agent-log {
+  list-style: none;
+  margin: 0;
+  padding: 8px 12px;
+  max-height: 220px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.agent-log-line {
+  color: var(--ink);
+  padding: 4px 8px;
+  border-radius: 7px;
+  background: #f6f7f9;
+  border-left: 3px solid var(--line);
+  animation: agent-fade 0.25s ease;
+}
+@keyframes agent-fade { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+.agent-log-time { color: var(--muted); font-variant-numeric: tabular-nums; margin-right: 4px; font-size: 0.78rem; }
+.agent-log-add { border-left-color: var(--green); }
+.agent-log-remove { border-left-color: #e0a800; }
+.agent-log-pay { border-left-color: var(--brand); background: #fff5f1; }
+.agent-log-error { border-left-color: #d23; background: #fff1f1; }
+.agent-hint {
+  margin: 0;
+  padding: 8px 12px;
+  color: var(--muted);
+  font-size: 0.76rem;
+  border-top: 1px solid var(--line);
+}
+@media (max-width: 520px) {
+  .agent-console { left: 16px; right: 16px; width: auto; }
+}

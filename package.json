@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "description": "Dummy storefront for the Agent Menu demo: static UI plus a Neon-backed cart API so any AI agent can transact over HTTP.",
+  "scripts": {
+    "demo": "node agent-sim.js",
+    "demo:once": "node agent-sim.js --once"
+  },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4"
   }

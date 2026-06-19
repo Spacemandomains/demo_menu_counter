@@ -27,6 +27,45 @@ The static UI alone still opens, but the cart needs the API + `DATABASE_URL` to
 work. On Vercel, connect the **Neon integration** to the project so
 `DATABASE_URL` is set; the `carts` table is created automatically on first use.
 
+## Watch an agent order (auto-demo)
+
+To show *how Agent Menu works*, the cart can drive itself — randomly adding,
+removing, and placing simulated orders, exactly as an AI agent would. Because
+the cart is server-side, you just watch it happen live on the page.
+
+Two ways to run it:
+
+### In the browser (zero setup)
+
+`auto-agent.js` ships with the page. It only uses the public `window.AgentMenu`
+API, so every move shows up live in the UI. It is **opt-in** so it never hijacks
+a real human's order:
+
+- Open the page with **`?demo=1`** (or `?auto=1`) to auto-start, **or**
+- Click **Run agent demo** in the floating "🤖 Agent activity" console (bottom-right).
+
+The console narrates each action ("Adding Crispy Fries", "Heading to
+checkout…", "Order AM-… confirmed 🎉") and loops forever until you click
+**Stop agent**. You can also drive it from code: `AgentDemo.start()` /
+`AgentDemo.stop()` / `AgentDemo.toggle()`.
+
+### As an external agent (Node script)
+
+`agent-sim.js` drives the *same* HTTP API from a separate process — the most
+faithful "an AI agent is transacting against your cart" demo. Open the page,
+then in another terminal:
+
+```bash
+npm run demo                       # drive local dev's shared "demo" cart, forever
+npm run demo:once                  # place exactly one order and stop
+node agent-sim.js https://your.app # drive a deployed instance
+node agent-sim.js --cart=demo --rounds=3 --fast
+```
+
+Open `<url>/?cart=demo` in a browser and watch the cart fill, flip to checkout,
+and confirm in real time. Requires Node 18+ (global `fetch`); no DB access
+needed — it only speaks the public API.
+
 ## The flow
 
 1. **Menus** (`#view-menus`) — 3 dummy menus with 1–2 items each.
@@ -47,6 +86,8 @@ work. On Vercel, connect the **Neon integration** to the project so
 | `menu-data.js`                    | The dummy menu data the page renders (edit to change menu). |
 | `menu.json`                       | Same menu as fetchable JSON (server's source of truth).     |
 | `app.js`                          | Renders the server cart and polls it live.                  |
+| `auto-agent.js`                   | In-browser auto-demo agent (opt-in; randomized ordering).   |
+| `agent-sim.js`                    | Standalone Node script that drives the API as an agent.     |
 | `.well-known/agent-menu.json`     | Discovery manifest advertising the menu + cart API.         |
 | `api/cart.js`                     | Create a cart (`POST`) / read a cart (`GET ?id=`).          |
 | `api/cart-items.js`               | Add / remove / set qty / clear / set view.                  |
