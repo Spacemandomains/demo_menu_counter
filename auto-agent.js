@@ -22,9 +22,9 @@
   // ---- Tunables ------------------------------------------------------------
 
   const CFG = {
-    minDelayMs: 1050, // pause between actions (randomized up to maxDelayMs)
-    maxDelayMs: 2400,
-    payPauseMs: 825, // extra "thinking" beat before paying / after confirming
+    minDelayMs: 700, // pause between actions (randomized up to maxDelayMs)
+    maxDelayMs: 1600,
+    payPauseMs: 550, // extra "thinking" beat before paying / after confirming
     logLimit: 7, // how many recent lines to keep in the on-screen console
   };
 

@@ -45,8 +45,8 @@ baseUrl = baseUrl.replace(/\/+$/, "");
 const CART_ID = flags.cart || "demo";
 const ROUNDS = flags.once ? 1 : flags.rounds ? parseInt(flags.rounds, 10) : Infinity;
 const FAST = !!flags.fast;
-const DELAY = FAST ? [400, 1100] : [1050, 2400];
-const PAY_PAUSE = FAST ? 500 : 825;
+const DELAY = FAST ? [400, 1100] : [700, 1600];
+const PAY_PAUSE = FAST ? 500 : 550;
 
 const PERSONAS = [
   { name: "Ada Lovelace", address: "123 Main St, Apt 4, San Francisco, CA 94105", card: "4242 4242 4242 4242" },
