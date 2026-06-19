@@ -269,12 +269,11 @@ main { padding: 32px 0 64px; }
 }
 
 /* ============ Auto-agent demo console (header hamburger) ============ */
-/* Keep the brand on the left and group the cart + hamburger on the right. */
-.header-inner .brand { margin-right: auto; }
-
+/* Group the brand + hamburger on the left; push the cart to the right. */
 .agent-console {
   position: relative;
   font-size: 0.85rem;
+  margin-right: auto;
 }
 
 /* Hamburger trigger, sitting next to the cart button in the header. */
@@ -313,11 +312,11 @@ main { padding: 32px 0 64px; }
   animation: live-pulse 1.6s infinite;
 }
 
-/* Dropdown panel anchored under the hamburger. */
+/* Dropdown panel anchored under the hamburger (opens to the right). */
 .agent-panel {
   position: absolute;
   top: calc(100% + 8px);
-  right: 0;
+  left: 0;
   width: 300px;
   max-width: calc(100vw - 32px);
   background: var(--card);
