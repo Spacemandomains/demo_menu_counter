@@ -61,20 +61,38 @@
   function buildConsole() {
     if (document.getElementById("agent-console")) return;
 
+    // Collapsed by default to a small launcher pill so it never blocks the menu.
     const panel = document.createElement("aside");
     panel.id = "agent-console";
-    panel.className = "agent-console";
+    panel.className = "agent-console is-collapsed";
     panel.setAttribute("data-testid", "agent-console");
     panel.innerHTML =
+      '<button type="button" class="agent-launcher" id="agent-launcher" data-testid="agent-launcher" ' +
+      'aria-label="Open agent demo">' +
+      '<span class="agent-bot" aria-hidden="true">🤖</span>' +
+      '<span class="agent-launcher-label">Agent demo</span>' +
+      "</button>" +
+      '<div class="agent-panel">' +
       '<div class="agent-console-head">' +
       '<span class="agent-console-title"><span class="agent-bot" aria-hidden="true">🤖</span> Agent activity</span>' +
-      '<button type="button" class="agent-toggle" id="agent-toggle" data-testid="agent-toggle">Run agent demo</button>' +
+      '<div class="agent-head-controls">' +
+      '<button type="button" class="agent-toggle" id="agent-toggle" data-testid="agent-toggle">Run</button>' +
+      '<button type="button" class="agent-min" id="agent-min" data-testid="agent-min" aria-label="Minimize">–</button>' +
+      "</div>" +
       "</div>" +
       '<ul class="agent-log" id="agent-log" data-testid="agent-log"></ul>' +
-      '<p class="agent-hint">A simulated AI agent ordering against this live cart.</p>';
+      '<p class="agent-hint">A simulated AI agent ordering against this live cart.</p>' +
+      "</div>";
     document.body.appendChild(panel);
 
     document.getElementById("agent-toggle").addEventListener("click", toggle);
+    document.getElementById("agent-launcher").addEventListener("click", () => setCollapsed(false));
+    document.getElementById("agent-min").addEventListener("click", () => setCollapsed(true));
+  }
+
+  function setCollapsed(collapsed) {
+    const panel = document.getElementById("agent-console");
+    if (panel) panel.classList.toggle("is-collapsed", collapsed);
   }
 
   function log(message, kind) {
@@ -94,9 +112,11 @@
   function setRunningUi(on) {
     const btn = document.getElementById("agent-toggle");
     if (btn) {
-      btn.textContent = on ? "Stop agent" : "Run agent demo";
+      btn.textContent = on ? "Stop" : "Run";
       btn.classList.toggle("is-running", on);
     }
+    const label = document.querySelector(".agent-launcher-label");
+    if (label) label.textContent = on ? "Agent running" : "Agent demo";
     const panel = document.getElementById("agent-console");
     if (panel) panel.classList.toggle("is-running", on);
   }
@@ -227,7 +247,10 @@
     whenReady(() => {
       menuItems = flatItems();
       const params = new URLSearchParams(location.search);
-      if (params.has("demo") || params.has("auto")) start();
+      if (params.has("demo") || params.has("auto")) {
+        setCollapsed(false); // expand so the narrated activity is visible
+        start();
+      }
     });
   }
 

@@ -273,17 +273,54 @@ main { padding: 32px 0 64px; }
   position: fixed;
   right: 16px;
   bottom: 16px;
-  width: 320px;
+  z-index: 50;
+  font-size: 0.85rem;
+}
+
+/* Collapsed: just a small launcher pill that never blocks the menu. */
+.agent-launcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+.agent-launcher:hover { border-color: #c8d6ff; }
+.agent-console.is-running .agent-launcher { border-color: #c8d6ff; box-shadow: 0 0 0 3px rgba(99, 132, 255, 0.14), var(--shadow); }
+.agent-console.is-collapsed .agent-panel { display: none; }
+.agent-console:not(.is-collapsed) .agent-launcher { display: none; }
+
+/* Expanded panel. */
+.agent-panel {
+  width: 300px;
   max-width: calc(100vw - 32px);
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  z-index: 50;
   overflow: hidden;
-  font-size: 0.85rem;
 }
-.agent-console.is-running { border-color: #c8d6ff; box-shadow: 0 0 0 3px rgba(99, 132, 255, 0.12), var(--shadow); }
+.agent-console.is-running .agent-panel { border-color: #c8d6ff; box-shadow: 0 0 0 3px rgba(99, 132, 255, 0.12), var(--shadow); }
+.agent-head-controls { display: inline-flex; align-items: center; gap: 6px; }
+.agent-min {
+  border: 0;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.agent-min:hover { background: rgba(255, 255, 255, 0.28); }
 .agent-console-head {
   display: flex;
   align-items: center;
@@ -344,5 +381,6 @@ main { padding: 32px 0 64px; }
   border-top: 1px solid var(--line);
 }
 @media (max-width: 520px) {
-  .agent-console { left: 16px; right: 16px; width: auto; }
+  .agent-console:not(.is-collapsed) { left: 16px; right: 16px; }
+  .agent-console:not(.is-collapsed) .agent-panel { width: auto; }
 }
