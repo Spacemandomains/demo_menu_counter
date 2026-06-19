@@ -22,9 +22,9 @@
   // ---- Tunables ------------------------------------------------------------
 
   const CFG = {
-    minDelayMs: 1400, // pause between actions (randomized up to maxDelayMs)
-    maxDelayMs: 3200,
-    payPauseMs: 1100, // extra "thinking" beat before paying / after confirming
+    minDelayMs: 1050, // pause between actions (randomized up to maxDelayMs)
+    maxDelayMs: 2400,
+    payPauseMs: 825, // extra "thinking" beat before paying / after confirming
     maxCartLines: 4, // soft cap on distinct items before the agent leans to checkout
     logLimit: 7, // how many recent lines to keep in the on-screen console
   };
