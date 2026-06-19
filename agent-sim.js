@@ -47,7 +47,6 @@ const ROUNDS = flags.once ? 1 : flags.rounds ? parseInt(flags.rounds, 10) : Infi
 const FAST = !!flags.fast;
 const DELAY = FAST ? [400, 1100] : [1050, 2400];
 const PAY_PAUSE = FAST ? 500 : 825;
-const MAX_CART_LINES = 4;
 
 const PERSONAS = [
   { name: "Ada Lovelace", address: "123 Main St, Apt 4, San Francisco, CA 94105", card: "4242 4242 4242 4242" },
@@ -105,20 +104,24 @@ const getState = () => api("/api/cart?id=" + encodeURIComponent(CART_ID));
 
 let MENU_ITEMS = [];
 
-async function addRandom() {
-  const item = pick(MENU_ITEMS);
-  const qty = Math.random() < 0.25 ? 2 : 1;
-  log(`Adding ${qty > 1 ? qty + "× " : ""}${item.name} (${money(item.priceCents)})`);
-  return postJson("/api/cart-items", { cartId: CART_ID, action: "add", itemId: item.id, qty });
+async function resetOrder() {
+  log("Starting a new order…");
+  await postJson("/api/cart-items", { cartId: CART_ID, action: "clear" });
+  await postJson("/api/cart-items", { cartId: CART_ID, action: "setview", view: "menus" });
 }
 
-async function removeRandom(lines) {
-  const line = pick(lines);
-  log(`Removing one ${line.name}`);
-  return postJson("/api/cart-items", { cartId: CART_ID, action: "remove", itemId: line.id });
+async function addOne(item) {
+  log(`Adding ${item.name} (${money(item.priceCents)})`);
+  return postJson("/api/cart-items", { cartId: CART_ID, action: "add", itemId: item.id, qty: 1 });
 }
 
-async function checkout(state) {
+async function removeOne(item) {
+  log(`Removing ${item.name}`);
+  return postJson("/api/cart-items", { cartId: CART_ID, action: "remove", itemId: item.id });
+}
+
+async function checkoutAndPay() {
+  const state = await getState();
   const persona = pick(PERSONAS);
   log(`Cart looks good (${state.itemCount} item(s), ${money(state.totalCents)}). Heading to checkout…`);
   await postJson("/api/cart-items", { cartId: CART_ID, action: "setview", view: "checkout" });
@@ -129,36 +132,28 @@ async function checkout(state) {
   return out;
 }
 
-// One action against the current state. Returns true once an order was placed.
+// Fixed per-order routine (items chosen at random; no scrolling in a terminal):
+//   add 1 item → remove that item → add 3 items → checkout & pay → (repeat)
+let plan = [];
+function buildPlan() {
+  const first = pick(MENU_ITEMS);
+  return [
+    { fn: resetOrder },
+    { fn: () => addOne(first) }, // add 1 item
+    { fn: () => removeOne(first) }, // remove that item
+    { fn: () => addOne(pick(MENU_ITEMS)) }, // add 3 items
+    { fn: () => addOne(pick(MENU_ITEMS)) },
+    { fn: () => addOne(pick(MENU_ITEMS)) },
+    { fn: checkoutAndPay, order: true }, // complete checkout + payment
+  ];
+}
+
+// Run the next step in the routine. Returns true once an order was placed.
 async function step() {
-  const state = await getState();
-
-  if (state.view === "confirmation") {
-    await wait(PAY_PAUSE);
-    log("Starting a new order…");
-    await postJson("/api/cart-items", { cartId: CART_ID, action: "clear" });
-    await postJson("/api/cart-items", { cartId: CART_ID, action: "setview", view: "menus" });
-    return false;
-  }
-
-  const lines = state.cart || [];
-  const distinct = lines.length;
-
-  if (distinct === 0) {
-    await addRandom();
-    return false;
-  }
-
-  const checkoutChance = Math.min(0.12 + distinct * 0.16, 0.7);
-  if (Math.random() < checkoutChance) {
-    await checkout(state);
-    return true;
-  }
-
-  const addChance = distinct >= MAX_CART_LINES ? 0.35 : 0.7;
-  if (Math.random() < addChance) await addRandom();
-  else await removeRandom(lines);
-  return false;
+  if (plan.length === 0) plan = buildPlan();
+  const s = plan.shift();
+  await s.fn();
+  return !!s.order;
 }
 
 // ---- Main ------------------------------------------------------------------

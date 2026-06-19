@@ -25,7 +25,6 @@
     minDelayMs: 1050, // pause between actions (randomized up to maxDelayMs)
     maxDelayMs: 2400,
     payPauseMs: 825, // extra "thinking" beat before paying / after confirming
-    maxCartLines: 4, // soft cap on distinct items before the agent leans to checkout
     logLimit: 7, // how many recent lines to keep in the on-screen console
   };
 
@@ -121,86 +120,73 @@
     if (panel) panel.classList.toggle("is-running", on);
   }
 
-  // ---- The decision loop ---------------------------------------------------
+  // ---- The order routine ---------------------------------------------------
 
-  // Decide the next action from the current server state and act on it. Each
-  // branch narrates what it's doing so the demo reads like an agent at work.
-  async function step() {
-    const state = await window.AgentMenu.getState();
+  // Every order runs the same fixed routine (items chosen at random):
+  //   scroll down → scroll up → add 1 item → remove that item →
+  //   add 3 items → checkout & pay → (repeat)
+  // Steps are queued and run one per tick so the pacing stays human.
+  let plan = [];
 
-    // Just confirmed an order? Admire it briefly, then start fresh.
-    if (state.view === "confirmation") {
-      const order = state.lastOrder;
-      log("Order " + (order ? "<strong>" + order.orderId + "</strong>" : "") + " confirmed. 🎉", "pay");
-      await wait(CFG.payPauseMs);
-      log("Starting a new order…");
-      await window.AgentMenu.startNewOrder();
-      return;
-    }
-
-    // While browsing the menu, sometimes just scroll around like a human
-    // skimming the options before acting.
-    if (state.view === "menus" && Math.random() < 0.3) {
-      return scrollRandom();
-    }
-
-    const lines = state.cart || [];
-    const distinct = lines.length;
-
-    // Empty cart → must add something to get going.
-    if (distinct === 0) {
-      return addRandom();
-    }
-
-    // Weighted choice. Checkout becomes more likely as the cart fills up.
-    const checkoutChance = Math.min(0.12 + distinct * 0.16, 0.7);
-    const roll = Math.random();
-
-    if (roll < checkoutChance) {
-      return checkout(state);
-    }
-
-    // Otherwise add or remove. Bias toward adding while the cart is small;
-    // bias toward trimming once it's getting full.
-    const addChance = distinct >= CFG.maxCartLines ? 0.35 : 0.7;
-    if (Math.random() < addChance) {
-      return addRandom();
-    }
-    return removeRandom(lines);
+  function buildPlan() {
+    const first = pick(menuItems);
+    return [
+      resetOrder, // clear out and return to the menu for a clean start
+      () => scrollMenu("down"),
+      () => scrollMenu("up"),
+      () => addItem(first), // add 1 item
+      () => removeItem(first), // remove that item
+      () => addItem(pick(menuItems)), // add 3 items
+      () => addItem(pick(menuItems)),
+      () => addItem(pick(menuItems)),
+      checkoutAndPay, // complete checkout + payment
+    ];
   }
 
-  async function addRandom() {
-    const item = pick(menuItems);
-    const qty = Math.random() < 0.25 ? 2 : 1;
-    log("Adding <strong>" + (qty > 1 ? qty + "× " : "") + escape(item.name) + "</strong> to cart", "add");
-    await window.AgentMenu.addItem(item.id, qty);
+  async function runNext() {
+    if (plan.length === 0) plan = buildPlan();
+    const action = plan.shift();
+    await action();
   }
 
-  async function scrollRandom() {
+  // ---- Routine steps -------------------------------------------------------
+
+  async function resetOrder() {
+    log("Starting a new order…");
+    await window.AgentMenu.startNewOrder();
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }
+
+  async function scrollMenu(dir) {
     const doc = document.documentElement;
     const max = Math.max(0, doc.scrollHeight - window.innerHeight);
-    if (max < 40) return; // nothing meaningful to scroll
-    const target = rand(0, max);
-    const dir = target >= (window.scrollY || 0) ? "down" : "up";
+    const target = dir === "down" ? max : 0;
     log("Scrolling " + dir + " the menu…");
     window.scrollTo({ top: target, behavior: "smooth" });
-    await wait(550); // let the smooth scroll settle before the next action
+    await wait(650); // let the smooth scroll settle before the next step
   }
 
-  async function removeRandom(lines) {
-    const line = pick(lines);
-    log("Removing one <strong>" + escape(line.name) + "</strong>", "remove");
-    await window.AgentMenu.removeItem(line.id);
+  async function addItem(item) {
+    log("Adding <strong>" + escape(item.name) + "</strong> to cart", "add");
+    await window.AgentMenu.addItem(item.id, 1);
   }
 
-  async function checkout(state) {
+  async function removeItem(item) {
+    log("Removing <strong>" + escape(item.name) + "</strong> from cart", "remove");
+    await window.AgentMenu.removeItem(item.id);
+  }
+
+  async function checkoutAndPay() {
+    const state = await window.AgentMenu.getState();
     const persona = pick(PERSONAS);
     log("Cart looks good (" + state.itemCount + " item" + (state.itemCount === 1 ? "" : "s") +
       ", " + money(state.totalCents) + "). Heading to checkout…");
     await window.AgentMenu.goToCheckout();
     await wait(CFG.payPauseMs);
     log("Filling delivery details for <strong>" + escape(persona.name) + "</strong> and paying…");
-    await window.AgentMenu.placeOrder(persona);
+    const receipt = await window.AgentMenu.placeOrder(persona);
+    log("Order " + (receipt ? "<strong>" + escape(receipt.orderId) + "</strong>" : "") + " confirmed. 🎉", "pay");
+    await wait(CFG.payPauseMs); // let the confirmation show before the next order
   }
 
   // ---- Loop control --------------------------------------------------------
@@ -208,7 +194,7 @@
   async function tick() {
     if (!running) return;
     try {
-      await step();
+      await runNext();
     } catch (e) {
       log("⚠️ " + escape((e && e.message) || String(e)), "error");
     }
@@ -219,6 +205,7 @@
   function start() {
     if (running) return;
     running = true;
+    plan = []; // start each run from the top of a fresh order routine
     setRunningUi(true);
     log("Agent started — browsing the menu…");
     timer = setTimeout(tick, 600);

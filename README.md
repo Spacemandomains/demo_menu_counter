@@ -29,9 +29,17 @@ work. On Vercel, connect the **Neon integration** to the project so
 
 ## Watch an agent order (auto-demo)
 
-To show *how Agent Menu works*, the cart can drive itself — randomly adding,
-removing, and placing simulated orders, exactly as an AI agent would. Because
-the cart is server-side, you just watch it happen live on the page.
+To show *how Agent Menu works*, the cart can drive itself — adding, removing,
+and placing simulated orders, exactly as an AI agent would. Because the cart is
+server-side, you just watch it happen live on the page.
+
+Each order runs a fixed routine (the items are picked at random):
+
+1. Scroll **down** the menu, then **up** (in-browser only).
+2. **Add 1** item to the cart, then **remove** that item.
+3. **Add 3** items to the cart.
+4. **Checkout** and **pay** (simulated).
+5. Start a new order and repeat.
 
 Two ways to run it:
 
