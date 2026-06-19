@@ -1,0 +1,5 @@
+# Local/dev-only tools — not part of the deployed web app.
+# agent-sim.js is a Node script you run from your own machine against the
+# deployed URL (node agent-sim.js https://your.app); it shouldn't be served
+# as a public static asset. The in-browser demo (auto-agent.js) ships normally.
+agent-sim.js
